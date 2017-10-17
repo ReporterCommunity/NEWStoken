@@ -305,8 +305,12 @@ contract ReporterTokenSale is Ownable {
     multiSig = _newWallet;
   }
 
-  // how many token units a buyer gets per wei
-  uint256 public rate;
+  // These will be set by setTier()
+  uint256 public rate; // how many token units a buyer gets per wei
+  uint256 public minContribution;   // minimum contributio to participate in tokensale
+  uint256 public maxContribution;   // default limit to tokens that the users can buy
+ // ***************************
+
 
   // amount of raised money in wei
   uint256 public weiRaised;
@@ -314,11 +318,6 @@ contract ReporterTokenSale is Ownable {
   // amount of raised tokens 
   uint256 public tokenRaised;
 
-  // minimum contributio to participate in tokensale
-  uint256 public minContribution;
-
-  // default limit to tokens that the users can buy
-  uint256 public constant maxContribution;
 
   // maximum amount of tokens being created
   uint256 public maxTokens;
@@ -344,13 +343,10 @@ contract ReporterTokenSale is Ownable {
   function ReporterTokenSale() {
     startTimestamp = 1508121458;
     endTimestamp = 1510730048;
-    rate = 1000;
     
     token = new ReporterToken();
-    minContribution = 0.001 ether; 
-    maxContribution = 1000000 ether; //  One Million Ether
     maxTokens = 60 * (10**6) * (10**decimals);
-    tokensForSale = 24 * (10**6) * (10**decimals);
+    tokensForSale = 36 * (10**6) * (10**decimals);
   }
 
 
@@ -359,14 +355,20 @@ contract ReporterTokenSale is Ownable {
    * @param tokens uint the amount of tokens you get according to current rate
    * @return uint the amount of bonus tokens the buyer gets
    */
-  function setRate() internal {
+  function setTier() internal {
     // first 25% tokens get extra 30% of tokens, next half get 15%
-    if (tokenRaised <= tokensForSale / 4) {
-      rate = 1300;
-    } else if (tokenRaised <= tokensForSale / 2) {
-      rate = 1150;
+    if (tokenRaised <= 9000000) {
+      rate = 1420;
+      minContribution = 100 ether;
+      maxContribution = 1000000 ether;
+    } else if (tokenRaised <= 18000000) {
+      rate = 1170;
+      minContribution = 0.01 ether;
+      maxContribution = 1000000 ether;
     } else {
       rate = 1000;
+      minContribution = 0.01 ether;
+      maxContribution = 100 ether;
     }
   }
 
@@ -394,7 +396,6 @@ contract ReporterTokenSale is Ownable {
      */
     modifier onlyAuthorised() {
         require (authorised[msg.sender] || freeForAll);
-        require(msg.value >= minContribution);
         require (now >= startTimestamp);
      
         require (!(hasEnded()));
@@ -439,7 +440,11 @@ contract ReporterTokenSale is Ownable {
     
     uint256 weiAmount = msg.value;
     
-    setRate();
+    setTier();
+
+    //check minimum and maximum amount
+    require(msg.value >= minContribution);
+    require(msg.value <= maxContribution);
 
     // calculate token amount to be created
     uint256 tokens = weiAmount.mul(rate);
@@ -450,8 +455,6 @@ contract ReporterTokenSale is Ownable {
       numberOfPurchasers++;
     }
     tokenRaised = tokenRaised.add(tokens); // so we can go slightly over
-
-    require (token.balanceOf(msg.sender) + tokens <= maxContribution); // <--- do this in ether
 
     token.mint(beneficiary, tokens);
     TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
