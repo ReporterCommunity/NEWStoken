@@ -65,25 +65,25 @@ contract ERC20 is ERC20Basic {
  * @dev Math operations with safety checks that throw on error
  */
 library SafeMath {
-  function mul(uint256 a, uint256 b) internal constant returns (uint256) {
+  function mul(uint256 a, uint256 b) internal pure returns (uint256) {
     uint256 c = a * b;
     assert(a == 0 || c / a == b);
     return c;
   }
 
-  function div(uint256 a, uint256 b) internal constant returns (uint256) {
+  function div(uint256 a, uint256 b) internal pure returns (uint256) {
     // assert(b > 0); // Solidity automatically throws when dividing by 0
     uint256 c = a / b;
     // assert(a == b * c + a % b); // There is no case in which this doesn't hold
     return c;
   }
 
-  function sub(uint256 a, uint256 b) internal constant returns (uint256) {
+  function sub(uint256 a, uint256 b) internal pure returns (uint256) {
     assert(b <= a);
     return a - b;
   }
 
-  function add(uint256 a, uint256 b) internal constant returns (uint256) {
+  function add(uint256 a, uint256 b) internal pure returns (uint256) {
     uint256 c = a + b;
     assert(c >= a);
     return c;
@@ -327,8 +327,6 @@ contract ReporterTokenSale is Ownable {
 
   /**
   * @dev Calculates the amount of bonus coins the buyer gets
-  * @param tokens uint the amount of tokens you get according to current rate
-  * @return uint the amount of bonus tokens the buyer gets
   */
   function setTier() internal {
     // first 25% tokens get extra 30% of tokens, next half get 15%
@@ -408,27 +406,26 @@ contract ReporterTokenSale is Ownable {
   }
 
   // low level token purchase function
-  function buyTokens(address beneficiary, uint256 value) onlyAuthorised internal {
-    uint256 weiAmount = msg.value;
+  function buyTokens(address beneficiary, uint256 amount) onlyAuthorised internal {
 
     setTier();
 
     //check minimum and maximum amount
-    require(msg.value >= minContribution);
-    require(msg.value <= maxContribution);
+    require(amount >= minContribution);
+    require(amount <= maxContribution);
 
     // calculate token amount to be created
-    uint256 tokens = weiAmount.mul(rate);
+    uint256 tokens = amount.mul(rate);
 
     // update state
-    weiRaised = weiRaised.add(weiAmount);
-    if (token.balanceOf(msg.sender) > 0) {
+    weiRaised = weiRaised.add(amount);
+    if (token.balanceOf(beneficiary) > 0) {
       numberOfPurchasers++;
     }
     tokenRaised = tokenRaised.add(tokens); // so we can go slightly over
 
     token.mint(beneficiary, tokens);
-    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
+    TokenPurchase(beneficiary, beneficiary, amount, tokens);
     multiSig.transfer(this.balance); // better in case any other ether ends up here
   }
 
