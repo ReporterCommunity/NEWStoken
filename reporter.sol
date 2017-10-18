@@ -1,6 +1,5 @@
 pragma solidity ^0.4.12;
 
-
 /**
  * @title Ownable
  * @dev The Ownable contract has an owner address, and provides basic authorization control
@@ -14,7 +13,7 @@ contract Ownable {
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
    * account.
    */
-  function Ownable() {
+  function Ownable() public {
     owner = msg.sender;
   }
 
@@ -22,11 +21,10 @@ contract Ownable {
   /**
    * @dev Throws if called by any account other than the owner.
    */
-  modifier onlyOwner() {
+  modifier onlyOwner(){
     require(msg.sender == owner);
     _;
   }
-
 
   /**
    * @dev Allows the current owner to transfer control of the contract to a newOwner.
@@ -37,7 +35,6 @@ contract Ownable {
       owner = newOwner;
     }
   }
-
 }
 
 /**
@@ -62,8 +59,6 @@ contract ERC20 is ERC20Basic {
   function approve(address spender, uint256 value) public returns (bool);
   event Approval(address indexed owner, address indexed spender, uint256 value);
 }
-
-
 
 /**
  * @title SafeMath
@@ -95,8 +90,6 @@ library SafeMath {
   }
 }
 
-
-
 /**
  * @title Basic token
  * @dev Basic version of StandardToken, with no allowances.
@@ -109,9 +102,9 @@ contract BasicToken is ERC20Basic {
   /**
   * @dev transfer token for a specified address
   * @param _to The address to transfer to.
-  * @param _value The amount to be transferred.
-  */
-  function transfer(address _to, uint256 _value) returns (bool) {
+    * @param _value The amount to be transferred.
+   */
+  function transfer(address _to, uint256 _value) public returns (bool){
     balances[msg.sender] = balances[msg.sender].sub(_value);
     balances[_to] = balances[_to].add(_value);
     Transfer(msg.sender, _to, _value);
@@ -122,13 +115,11 @@ contract BasicToken is ERC20Basic {
   * @dev Gets the balance of the specified address.
   * @param _owner The address to query the the balance of.
   * @return An uint256 representing the amount owned by the passed address.
-  */
-  function balanceOf(address _owner) constant returns (uint256 balance) {
+   */
+  function balanceOf(address _owner) public constant returns (uint256 balance) {
     return balances[_owner];
   }
-
 }
-
 
 /**
  * @title Standard ERC20 token
@@ -138,15 +129,13 @@ contract BasicToken is ERC20Basic {
  * @dev Based on code by FirstBlood: https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
  */
 contract StandardToken is ERC20, BasicToken {
-
   mapping (address => mapping (address => uint256)) internal allowed;
 
-
   /**
-   * @dev Transfer tokens from one address to another
-   * @param _from address The address which you want to send tokens from
-   * @param _to address The address which you want to transfer to
-   * @param _value uint256 the amout of tokens to be transfered
+  * @dev Transfer tokens from one address to another
+  * @param _from address The address which you want to send tokens from
+  * @param _to address The address which you want to transfer to
+  * @param _value uint256 the amout of tokens to be transfered
    */
   function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
     require(_to != address(0));
@@ -159,9 +148,9 @@ contract StandardToken is ERC20, BasicToken {
   }
 
   /**
-   * @dev Aprove the passed address to spend the specified amount of tokens on behalf of msg.sender.
-   * @param _spender The address which will spend the funds.
-   * @param _value The amount of tokens to be spent.
+  * @dev Aprove the passed address to spend the specified amount of tokens on behalf of msg.sender.
+  * @param _spender The address which will spend the funds.
+  * @param _value The amount of tokens to be spent.
    */
   function approve(address _spender, uint256 _value) public returns (bool) {
 
@@ -177,19 +166,15 @@ contract StandardToken is ERC20, BasicToken {
   }
 
   /**
-   * @dev Function to check the amount of tokens that an owner allowed to a spender.
-   * @param _owner address The address which owns the funds.
-   * @param _spender address The address which will spend the funds.
-   * @return A uint256 specifing the amount of tokens still avaible for the spender.
+  * @dev Function to check the amount of tokens that an owner allowed to a spender.
+  * @param _owner address The address which owns the funds.
+    * @param _spender address The address which will spend the funds.
+    * @return A uint256 specifing the amount of tokens still avaible for the spender.
    */
   function allowance(address _owner, address _spender) public constant returns (uint256 remaining) {
     return allowed[_owner][_spender];
   }
-
 }
-
-
-
 
 /**
  * @title Mintable token
@@ -204,17 +189,16 @@ contract MintableToken is StandardToken, Ownable {
 
   bool public mintingFinished = false;
 
-
   modifier canMint() {
     require(!mintingFinished);
     _;
   }
 
   /**
-   * @dev Function to mint tokens
-   * @param _to The address that will recieve the minted tokens.
-   * @param _amount The amount of tokens to mint.
-   * @return A boolean that indicates if the operation was successful.
+  * @dev Function to mint tokens
+  * @param _to The address that will recieve the minted tokens.
+    * @param _amount The amount of tokens to mint.
+    * @return A boolean that indicates if the operation was successful.
    */
   function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
     totalSupply = totalSupply.add(_amount);
@@ -224,8 +208,8 @@ contract MintableToken is StandardToken, Ownable {
   }
 
   /**
-   * @dev Function to stop minting new tokens.
-   * @return True if the operation was successful.
+  * @dev Function to stop minting new tokens.
+  * @return True if the operation was successful.
    */
   function finishMinting() onlyOwner public returns (bool) {
     mintingFinished = true;
@@ -233,8 +217,6 @@ contract MintableToken is StandardToken, Ownable {
     return true;
   }
 }
-
-
 
 contract ReporterToken is MintableToken {
   string public name = "Reporter Token";
@@ -244,7 +226,7 @@ contract ReporterToken is MintableToken {
   bool public tradingStarted = false;
 
   /**
-   * @dev modifier that throws if trading has not started yet
+  * @dev modifier that throws if trading has not started yet
    */
   modifier hasStartedTrading() {
     require(tradingStarted);
@@ -252,12 +234,11 @@ contract ReporterToken is MintableToken {
   }
 
   /**
-   * @dev Allows the owner to enable the trading. This can not be undone
-   */
-  function startTrading() onlyOwner {
+  * @dev Allows the owner to enable the trading. This can not be undone
+  */
+  function startTrading() public onlyOwner {
     tradingStarted = true;
   }
-
 
   /**
    * @dev Allows anyone to transfer the Change tokens once trading has started
@@ -269,22 +250,19 @@ contract ReporterToken is MintableToken {
   }
 
   /**
-   * @dev Allows anyone to transfer the Change tokens once trading has started
-   * @param _from address The address which you want to send tokens from
-   * @param _to address The address which you want to transfer to
-   * @param _value uint the amout of tokens to be transfered
+  * @dev Allows anyone to transfer the Change tokens once trading has started
+  * @param _from address The address which you want to send tokens from
+  * @param _to address The address which you want to transfer to
+  * @param _value uint the amout of tokens to be transfered
    */
   function transferFrom(address _from, address _to, uint _value) hasStartedTrading public returns (bool) {
     return super.transferFrom(_from, _to, _value);
   }
 
   function emergencyERC20Drain( ERC20 oddToken, uint amount ) public {
-      oddToken.transfer(owner, amount);
+    oddToken.transfer(owner, amount);
   }
-
-
 }
-
 
 contract ReporterTokenSale is Ownable {
   using SafeMath for uint256;
@@ -292,7 +270,7 @@ contract ReporterTokenSale is Ownable {
   // The token being sold
   ReporterToken public token;
 
-  uint256 public constant decimals = 18;  // must match token decimals
+  uint256 public decimals = 18;  // must match token decimals
 
   // start and end block where investments are allowed (both inclusive)
   uint256 public startTimestamp;
@@ -301,7 +279,7 @@ contract ReporterTokenSale is Ownable {
   // address where funds are collected
   address public multiSig;
 
-  function setWallet(address _newWallet) onlyOwner {
+  function setWallet(address _newWallet) public onlyOwner {
     multiSig = _newWallet;
   }
 
@@ -309,8 +287,7 @@ contract ReporterTokenSale is Ownable {
   uint256 public rate; // how many token units a buyer gets per wei
   uint256 public minContribution;   // minimum contributio to participate in tokensale
   uint256 public maxContribution;   // default limit to tokens that the users can buy
- // ***************************
-
+  // ***************************
 
   // amount of raised money in wei
   uint256 public weiRaised;
@@ -318,14 +295,13 @@ contract ReporterTokenSale is Ownable {
   // amount of raised tokens 
   uint256 public tokenRaised;
 
-
   // maximum amount of tokens being created
   uint256 public maxTokens;
 
   // maximum amount of tokens for sale
   uint256 public tokensForSale;  // 24 Million Tokens for SALE
 
-   // number of participants in presale
+  // number of participants in presale
   uint256 public numberOfPurchasers = 0;
 
   //  for whitelist
@@ -340,21 +316,20 @@ contract ReporterTokenSale is Ownable {
   event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
   event SaleClosed();
 
-  function ReporterTokenSale() {
+  function ReporterTokenSale() public {
     startTimestamp = 1508121458;
     endTimestamp = 1510730048;
-    
+
     token = new ReporterToken();
     maxTokens = 60 * (10**6) * (10**decimals);
     tokensForSale = 36 * (10**6) * (10**decimals);
   }
 
-
   /**
-   * @dev Calculates the amount of bonus coins the buyer gets
-   * @param tokens uint the amount of tokens you get according to current rate
-   * @return uint the amount of bonus tokens the buyer gets
-   */
+  * @dev Calculates the amount of bonus coins the buyer gets
+  * @param tokens uint the amount of tokens you get according to current rate
+  * @return uint the amount of bonus tokens the buyer gets
+  */
   function setTier() internal {
     // first 25% tokens get extra 30% of tokens, next half get 15%
     if (tokenRaised <= 9000000) {
@@ -363,7 +338,7 @@ contract ReporterTokenSale is Ownable {
       maxContribution = 1000000 ether;
     } else if (tokenRaised <= 18000000) {
       rate = 1170;
-      minContribution = 0.01 ether;
+      minContribution = 5 ether;
       maxContribution = 1000000 ether;
     } else {
       rate = 1000;
@@ -374,72 +349,68 @@ contract ReporterTokenSale is Ownable {
 
   // @return true if crowdsale event has ended
   function hasEnded() public constant returns (bool) {
-    if (now > endTimestamp) 
-        return true;
+    if (now > endTimestamp)
+      return true;
     if (tokenRaised >= tokensForSale)
-        return true; // if we reach the tokensForSale 
+      return true; // if we reach the tokensForSale
     return false;
   }
 
+  /**
+  * @dev throws if person sending is not contract owner or cs role
+   */
+  modifier onlyCSorOwner() {
+    require((msg.sender == owner) || (msg.sender==cs));
+    _;
+  }
 
-  
-    /**
-     * @dev throws if person sending is not contract owner or cs role
-     */
-    modifier onlyCSorOwner() {
-        require((msg.sender == owner) || (msg.sender==cs));
-        _;
-    }
+  /**
+  * @dev throws if person sending is not authorised or sends nothing
+  */
+  modifier onlyAuthorised() {
+    require (authorised[msg.sender] || freeForAll);
+    require (now >= startTimestamp);
 
-    /**
-     * @dev throws if person sending is not authorised or sends nothing
-     */
-    modifier onlyAuthorised() {
-        require (authorised[msg.sender] || freeForAll);
-        require (now >= startTimestamp);
-     
-        require (!(hasEnded()));
-        require (multiSig != 0x0);
-        require(tokensForSale > tokenRaised); // check we are not over the number of tokensForSale
-        _;
-    }
+    require (!(hasEnded()));
+    require (multiSig != 0x0);
+    require(tokensForSale > tokenRaised); // check we are not over the number of tokensForSale
+    _;
+  }
 
-    
-    /**
-     * @dev authorise an account to participate
-     */
-    function authoriseAccount(address whom) onlyCSorOwner public {
-        authorised[whom] = true;
-    }
+  /**
+  * @dev authorise an account to participate
+  */
+  function authoriseAccount(address whom) onlyCSorOwner public {
+    authorised[whom] = true;
+  }
 
-    /**
-     * @dev authorise a lot of accounts in one go
-     */
-    function authoriseManyAccounts(address[] many) onlyCSorOwner public {
-        for (uint256 i = 0; i < many.length; i++) {
-            authorised[many[i]] = true;
-        }
+  /**
+  * @dev authorise a lot of accounts in one go
+  */
+  function authoriseManyAccounts(address[] many) onlyCSorOwner public {
+    for (uint256 i = 0; i < many.length; i++) {
+      authorised[many[i]] = true;
     }
+  }
 
-    /**
-     * @dev ban an account from participation (default)
-     */
-    function blockAccount(address whom) onlyCSorOwner public {
-        authorised[whom] = false;
-    }
+  /**
+  * @dev ban an account from participation (default)
+  */
+  function blockAccount(address whom) onlyCSorOwner public {
+    authorised[whom] = false;
+  }
 
-    /**
-     * @dev set a new CS representative
-     */
-    function setCS(address newCS) onlyOwner public {
-        cs = newCS;
-    }
-    
+  /**
+  * @dev set a new CS representative
+   */
+  function setCS(address newCS) onlyOwner public {
+    cs = newCS;
+  }
+
   // low level token purchase function
-  function buyTokens(address beneficiary) payable onlyAuthorised internal {
-    
+  function buyTokens(address beneficiary, uint256 value) onlyAuthorised internal {
     uint256 weiAmount = msg.value;
-    
+
     setTier();
 
     //check minimum and maximum amount
@@ -448,7 +419,7 @@ contract ReporterTokenSale is Ownable {
 
     // calculate token amount to be created
     uint256 tokens = weiAmount.mul(rate);
-      
+
     // update state
     weiRaised = weiRaised.add(weiAmount);
     if (token.balanceOf(msg.sender) > 0) {
@@ -474,15 +445,11 @@ contract ReporterTokenSale is Ownable {
   }
 
   // fallback function can be used to buy tokens
-  function () payable {
-    buyTokens(msg.sender);
+  function () public payable {
+    buyTokens(msg.sender, msg.value);
   }
 
-  function emergencyERC20Drain( ERC20 oddToken, uint amount ) {
-      oddToken.transfer(owner, amount);
+  function emergencyERC20Drain( ERC20 oddToken, uint amount ) public {
+    oddToken.transfer(owner, amount);
   }
-
-
 }
-
-
