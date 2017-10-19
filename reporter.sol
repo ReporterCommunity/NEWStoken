@@ -270,7 +270,8 @@ contract ReporterTokenSale is Ownable {
   // The token being sold
   ReporterToken public token;
 
-  uint256 public decimals = 18;  // must match token decimals
+  uint256 public decimals;  
+  uint256 public oneCoin;
 
   // start and end block where investments are allowed (both inclusive)
   uint256 public startTimestamp;
@@ -317,12 +318,14 @@ contract ReporterTokenSale is Ownable {
   event SaleClosed();
 
   function ReporterTokenSale() public {
-    startTimestamp = 1508121458;
-    endTimestamp = 1510730048;
+    startTimestamp = 1508684400; // 22 Oct 15:00 UTC
+    endTimestamp = 1513350000;   // 15 Dec 15:00 UTC
 
     token = new ReporterToken();
-    maxTokens = 60 * (10**6) * (10**decimals);
-    tokensForSale = 36 * (10**6) * (10**decimals);
+    decimals = token.decimals();
+    oneCoin = 10 ** decimals;
+    maxTokens = 60 * (10**6) * oneCoin;
+    tokensForSale = 36 * (10**6) * oneCoin;
   }
 
   /**
@@ -330,11 +333,11 @@ contract ReporterTokenSale is Ownable {
   */
   function setTier() internal {
     // first 25% tokens get extra 30% of tokens, next half get 15%
-    if (tokenRaised <= 9000000) {
+    if (tokenRaised <= 9000000 * oneCoin) {
       rate = 1420;
       minContribution = 100 ether;
       maxContribution = 1000000 ether;
-    } else if (tokenRaised <= 18000000) {
+    } else if (tokenRaised <= 18000000 * oneCoin) {
       rate = 1170;
       minContribution = 5 ether;
       maxContribution = 1000000 ether;
@@ -433,7 +436,7 @@ contract ReporterTokenSale is Ownable {
   function finishSale() public onlyOwner {
     require(hasEnded());
 
-    // assign the rest of the 40M tokens to the reserve
+    // assign the rest of the 60M tokens to the reserve
     uint unassigned = maxTokens.sub(tokenRaised);
     token.mint(multiSig,unassigned);
 
