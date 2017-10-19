@@ -1,0 +1,3 @@
+tests/adminKeys/*
+tests/userKeys/*
+.DS_Store

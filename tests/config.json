@@ -1,0 +1,12 @@
+{
+    "XPC_PATH": "/Users/daveappleton/Library/Ethereum/geth.ipc" ,
+    "IPC_PATH": "http://localhost:8545" ,
+    "port" : ":9090",
+    "script": "test003.json",
+    "log":"test003.log",
+    "csv":"test003.csv",
+    "suffix": "v01",
+    "chainId" : 42,
+    "testing": true,
+    "listing": false
+}
