@@ -1,2 +1,2 @@
-# reportertoken
-Reporter Token
+# NEWStoken
+Reporter Community NEWS Token
